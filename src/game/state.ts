@@ -1,3 +1,5 @@
+import { INITIAL_LOVE } from './constants';
+
 export type EncounterKey = 'duda' | 'distancia' | 'extrañar';
 
 export type SaveData = {
@@ -16,7 +18,7 @@ export type SaveData = {
 export const initialState: SaveData = {
   currentScene: 'TitleScene',
   finalSeen: false,
-  loveMeter: 10,
+  loveMeter: INITIAL_LOVE,
   selectedCharacter: null,
   memories: [],
   solvedEncounters: [],

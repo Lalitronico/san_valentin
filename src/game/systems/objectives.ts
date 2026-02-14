@@ -1,3 +1,4 @@
+import { LOVE_THRESHOLD_LONDON, MAX_ENCOUNTERS, MAX_MEMORIES } from '../constants';
 import { getState } from '../state';
 
 export const getObjectiveText = (): string => {
@@ -13,8 +14,8 @@ export const getObjectiveText = (): string => {
   }
 
   if (state.currentScene === 'CampusScene') {
-    if (memories < 6 || encounters < 3 || state.loveMeter < 55) {
-      return `Campus: recuerdos ${memories}/6, momentos ${encounters}/3, love ${state.loveMeter}/55.`;
+    if (memories < MAX_MEMORIES || encounters < MAX_ENCOUNTERS || state.loveMeter < LOVE_THRESHOLD_LONDON) {
+      return `Campus: recuerdos ${memories}/${MAX_MEMORIES}, momentos ${encounters}/${MAX_ENCOUNTERS}, love ${state.loveMeter}/${LOVE_THRESHOLD_LONDON}.`;
     }
     return 'Objetivo: salida inferior derecha para ir a Londres.';
   }

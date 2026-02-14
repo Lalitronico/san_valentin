@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
+import { MUSIC_TICK_MS } from '../constants';
 
 let audioCtx: AudioContext | null = null;
 let unlocked = false;
+let muted = false;
 let musicInterval: number | null = null;
 let noteIndex = 0;
 
@@ -65,31 +67,41 @@ export const unlockAudio = async (): Promise<void> => {
   unlocked = true;
 };
 
+export const isMuted = (): boolean => muted;
+
+export const toggleMute = (): boolean => {
+  muted = !muted;
+  if (muted) {
+    stopMusic();
+  }
+  return muted;
+};
+
 export const playTypeSound = (): void => {
-  if (!unlocked) return;
+  if (!unlocked || muted) return;
   tone(680 + Math.random() * 80, 0.04, 'triangle', 0.012, 0.8);
 };
 
 export const playStepSound = (): void => {
-  if (!unlocked) return;
+  if (!unlocked || muted) return;
   tone(130 + Math.random() * 40, 0.05, 'sine', 0.017, 0.7);
 };
 
 export const playConfirmSound = (): void => {
-  if (!unlocked) return;
+  if (!unlocked || muted) return;
   tone(520, 0.09, 'sine', 0.03, 0.8);
   setTimeout(() => tone(720, 0.11, 'triangle', 0.025, 0.82), 55);
 };
 
 export const playFanfare = (): void => {
-  if (!unlocked) return;
+  if (!unlocked || muted) return;
   [392, 440, 523, 659].forEach((f, i) => {
     setTimeout(() => pianoLike(f, 0.03), i * 120);
   });
 };
 
 export const startMusic = (_scene: Phaser.Scene): void => {
-  if (!unlocked) return;
+  if (!unlocked || muted) return;
 
   const ctx = ensureCtx();
   if (!ctx) return;
@@ -132,7 +144,7 @@ export const startMusic = (_scene: Phaser.Scene): void => {
       tone(bass[Math.floor(noteIndex / 4) % bass.length], 0.32, 'square', 0.012, 0.92);
     }
     noteIndex += 1;
-  }, 210);
+  }, MUSIC_TICK_MS);
 };
 
 export const stopMusic = (): void => {

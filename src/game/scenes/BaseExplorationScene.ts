@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_H, GAME_W, TILE_SIZE } from '../constants';
+import { GAME_H, GAME_W, TILE_SIZE, STEP_SOUND_MS, PLAYER_SPEED, INTERACT_RANGE, MEMORY_LOVE_BONUS } from '../constants';
 import { LOVE_CONFIG } from '../../config';
 import { getState } from '../state';
 import { persistSave } from '../save';
@@ -31,6 +31,7 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
   private lastStep = 0;
   private waterTiles: Phaser.GameObjects.Image[] = [];
   private lampGlows: Phaser.GameObjects.Arc[] = [];
+  private saveIndicator!: Phaser.GameObjects.Text;
 
   constructor(key: string) {
     super(key);
@@ -66,6 +67,17 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
       .setDepth(45)
       .setScrollFactor(0);
 
+    this.saveIndicator = this.add
+      .text(GAME_W - 10, GAME_H - 6, '', {
+        fontFamily: 'Press Start 2P',
+        fontSize: '6px',
+        color: '#8bc4a0'
+      })
+      .setOrigin(1, 1)
+      .setDepth(50)
+      .setScrollFactor(0)
+      .setAlpha(0);
+
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.wasd = this.input.keyboard!.addKeys('W,A,S,D') as { [key: string]: Phaser.Input.Keyboard.Key };
     this.escKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
@@ -94,7 +106,7 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
       return;
     }
 
-    const speed = 96;
+    const speed = PLAYER_SPEED;
     let vx = 0;
     let vy = 0;
 
@@ -111,7 +123,7 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
       body.velocity.normalize().scale(speed);
     }
 
-    if ((vx !== 0 || vy !== 0) && time - this.lastStep > 210) {
+    if ((vx !== 0 || vy !== 0) && time - this.lastStep > STEP_SOUND_MS) {
       playStepSound();
       this.lastStep = time;
     }
@@ -263,7 +275,7 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
       ...this.memories.map((m) => ({ type: 'memory' as const, data: m, dist: Phaser.Math.Distance.BetweenPoints(playerPos, m.sprite) })),
       ...this.encounters.map((e) => ({ type: 'encounter' as const, data: e, dist: Phaser.Math.Distance.BetweenPoints(playerPos, e.sprite) })),
       ...this.signs.map((s) => ({ type: 'sign' as const, data: s, dist: Phaser.Math.Distance.BetweenPoints(playerPos, s.sprite) }))
-    ].filter((entry) => entry.dist <= TILE_SIZE + 6);
+    ].filter((entry) => entry.dist <= INTERACT_RANGE);
 
     if (all.length === 0) return;
     all.sort((a, b) => a.dist - b.dist);
@@ -280,7 +292,7 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
 
       if (target.data.id === 'london-npc-1' && !getState().flags.reunionUnlocked) {
         getState().flags.reunionUnlocked = true;
-        getState().loveMeter = Math.min(100, getState().loveMeter + 8);
+        getState().loveMeter = Math.min(100, getState().loveMeter + MEMORY_LOVE_BONUS);
         persistSave();
         playFanfare();
       }
@@ -300,10 +312,12 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
         return;
       }
       getState().memories.push(target.data.id);
-      getState().loveMeter = Math.min(100, getState().loveMeter + 8);
+      getState().loveMeter = Math.min(100, getState().loveMeter + MEMORY_LOVE_BONUS);
       target.data.sprite.setVisible(false);
       persistSave();
       playFanfare();
+      this.showFloatingText(target.data.sprite.x, target.data.sprite.y, `+${MEMORY_LOVE_BONUS} LOVE`);
+      this.flashSave();
       this.dialog.start([{ speaker: 'Recuerdo', text: target.data.description }]);
       return;
     }
@@ -329,6 +343,8 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
             getState().loveMeter = Math.min(100, getState().loveMeter + picked.bonus);
             encounter.sprite.setTint(0x6e729a);
             persistSave();
+            this.showFloatingText(encounter.sprite.x, encounter.sprite.y, `+${picked.bonus} LOVE`, '#ff9dc1');
+            this.flashSave();
             this.dialog.start([
               { speaker: encounter.title, text: picked.response },
               { speaker: 'Sistema', text: `Love Meter +${picked.bonus}` }
@@ -377,6 +393,39 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
   private animateWater(time: number): void {
     const alpha = 0.86 + Math.sin(time * 0.0045) * 0.14;
     this.waterTiles.forEach((tile) => tile.setAlpha(alpha));
+  }
+
+  private showFloatingText(x: number, y: number, text: string, color = '#ffdd8b'): void {
+    const floater = this.add
+      .text(x, y - 8, text, {
+        fontFamily: 'Press Start 2P',
+        fontSize: '9px',
+        color
+      })
+      .setOrigin(0.5)
+      .setDepth(55);
+
+    this.tweens.add({
+      targets: floater,
+      y: y - 36,
+      alpha: 0,
+      duration: 1200,
+      ease: 'Sine.easeOut',
+      onComplete: () => floater.destroy()
+    });
+  }
+
+  private flashSave(): void {
+    this.saveIndicator.setText('SAVED');
+    this.saveIndicator.setAlpha(1);
+    this.tweens.killTweensOf(this.saveIndicator);
+    this.tweens.add({
+      targets: this.saveIndicator,
+      alpha: 0,
+      duration: 1400,
+      delay: 400,
+      ease: 'Sine.easeOut'
+    });
   }
 
   private playerTexture(): string {

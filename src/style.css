@@ -118,6 +118,11 @@ button:hover {
   filter: brightness(1.08);
 }
 
+button:focus {
+  outline: 2px solid #ffe39f;
+  outline-offset: 2px;
+}
+
 button:active {
   transform: translate(2px, 2px);
   box-shadow: 2px 2px 0 #000;

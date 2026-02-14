@@ -1,3 +1,4 @@
+import { MAX_MEMORIES } from './constants';
 import type { SaveData } from './state';
 import { getState, initialState } from './state';
 
@@ -16,7 +17,7 @@ export const loadSave = (): SaveData => {
         ...initialState.flags,
         ...(typeof parsed.flags === 'object' && parsed.flags ? parsed.flags : {})
       },
-      memories: Array.isArray(parsed.memories) ? parsed.memories.slice(0, 6) : [],
+      memories: Array.isArray(parsed.memories) ? parsed.memories.slice(0, MAX_MEMORIES) : [],
       solvedEncounters: Array.isArray(parsed.solvedEncounters)
         ? (parsed.solvedEncounters.filter((v) => ['duda', 'distancia', 'extrañar'].includes(v)) as SaveData['solvedEncounters'])
         : []

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { COLORS, GAME_H, GAME_W } from '../constants';
+import { COLORS, DIALOG_CHAR_MS, GAME_H, GAME_W } from '../constants';
 import { playTypeSound } from '../systems/audio';
 
 type DialogItem = {
@@ -93,7 +93,7 @@ export class DialogBox {
 
     this.charTimer?.remove();
     this.charTimer = this.scene.time.addEvent({
-      delay: 18,
+      delay: DIALOG_CHAR_MS,
       callback: () => {
         this.currentIndex += 1;
         const chunk = this.currentFull.slice(0, this.currentIndex);

@@ -12,7 +12,7 @@ export class BridgeFinalScene extends Phaser.Scene {
   private readyForLetter = false;
   private stars: Phaser.GameObjects.Rectangle[] = [];
   private river: Phaser.GameObjects.Rectangle[] = [];
-  private rain: Phaser.GameObjects.Rectangle[] = [];
+  private rain: Array<{ rect: Phaser.GameObjects.Rectangle; vx: number; vy: number }> = [];
   private lampGlows: Phaser.GameObjects.Arc[] = [];
   private skylineFar: Phaser.GameObjects.Rectangle[] = [];
   private skylineNear: Phaser.GameObjects.Rectangle[] = [];
@@ -88,11 +88,11 @@ export class BridgeFinalScene extends Phaser.Scene {
     }
 
     for (let i = 0; i < 90; i += 1) {
-      const drop = this.add
+      const rect = this.add
         .rectangle(Phaser.Math.Between(0, GAME_W), Phaser.Math.Between(0, GAME_H), 1, Phaser.Math.Between(5, 9), 0xc4dcff, 0.26)
         .setAngle(-16)
         .setDepth(6);
-      this.rain.push(drop);
+      this.rain.push({ rect, vx: 1 + (i % 3) * 0.2, vy: 2.2 + (i % 4) * 0.3 });
     }
 
     this.add
@@ -176,14 +176,14 @@ export class BridgeFinalScene extends Phaser.Scene {
       b.x += Math.sin((time + i * 30) * 0.00035) * 0.06;
     });
 
-    this.rain.forEach((drop, i) => {
-      drop.x -= 1 + (i % 3) * 0.2;
-      drop.y += 2.2 + (i % 4) * 0.3;
-      if (drop.y > GAME_H + 8 || drop.x < -8) {
-        drop.y = Phaser.Math.Between(-30, -8);
-        drop.x = Phaser.Math.Between(0, GAME_W + 40);
+    for (const drop of this.rain) {
+      drop.rect.x -= drop.vx;
+      drop.rect.y += drop.vy;
+      if (drop.rect.y > GAME_H + 8 || drop.rect.x < -8) {
+        drop.rect.y = Phaser.Math.Between(-30, -8);
+        drop.rect.x = Phaser.Math.Between(0, GAME_W + 40);
       }
-    });
+    }
 
     this.stars.forEach((s, i) => {
       s.alpha = 0.35 + Math.sin((time + i * 20) * 0.01) * 0.55;

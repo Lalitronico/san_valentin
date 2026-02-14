@@ -99,7 +99,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       return;
     }
 
-    getState().selectedCharacter = this.selected === 0 ? 'my' : 'her';
+    getState().selectedCharacter = 'her';
     getState().currentScene = 'CityScene';
     persistSave();
     playConfirmSound();

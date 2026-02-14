@@ -3,8 +3,10 @@ import { GAME_H, GAME_W } from '../constants';
 import { createLondonData } from '../systems/worldData';
 import { BaseExplorationScene } from './BaseExplorationScene';
 
+type RainDrop = { rect: Phaser.GameObjects.Rectangle; vx: number; vy: number };
+
 export class LondonScene extends BaseExplorationScene {
-  private rain: Phaser.GameObjects.Rectangle[] = [];
+  private rain: RainDrop[] = [];
   private skylineFar: Phaser.GameObjects.Rectangle[] = [];
   private skylineNear: Phaser.GameObjects.Rectangle[] = [];
 
@@ -26,11 +28,11 @@ export class LondonScene extends BaseExplorationScene {
     }
 
     for (let i = 0; i < 120; i += 1) {
-      const drop = this.add
+      const rect = this.add
         .rectangle(Phaser.Math.Between(0, GAME_W), Phaser.Math.Between(0, GAME_H), 1, Phaser.Math.Between(5, 10), 0xb9d4ff, 0.35)
         .setAngle(-18)
         .setDepth(35);
-      this.rain.push(drop);
+      this.rain.push({ rect, vx: 1.2 + (i % 3) * 0.2, vy: 2.7 + (i % 4) * 0.35 });
     }
 
     super.create();
@@ -49,14 +51,14 @@ export class LondonScene extends BaseExplorationScene {
       b.alpha = 0.7 + Math.sin((time + i * 18) * 0.0024) * 0.05;
     });
 
-    this.rain.forEach((drop, i) => {
-      drop.x -= 1.2 + (i % 3) * 0.2;
-      drop.y += 2.7 + (i % 4) * 0.35;
-      if (drop.y > GAME_H + 8 || drop.x < -8) {
-        drop.y = Phaser.Math.Between(-40, -10);
-        drop.x = Phaser.Math.Between(0, GAME_W + 40);
+    for (const drop of this.rain) {
+      drop.rect.x -= drop.vx;
+      drop.rect.y += drop.vy;
+      if (drop.rect.y > GAME_H + 8 || drop.rect.x < -8) {
+        drop.rect.y = Phaser.Math.Between(-40, -10);
+        drop.rect.x = Phaser.Math.Between(0, GAME_W + 40);
       }
-    });
+    }
   }
 
   protected buildWorld() {

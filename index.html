@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pixel Love Adventure</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="letter-overlay" class="hidden">
+      <div class="letter-card">
+        <h2>Carta para <span id="gf-name"></span></h2>
+        <p id="letter-text"></p>
+        <p class="small" id="joke-line"></p>
+        <div class="code-row">
+          <code id="secret-code">LSE2026❤</code>
+          <button id="copy-code">Copiar código</button>
+        </div>
+        <p class="small" id="copy-status"></p>
+        <div class="button-row">
+          <button id="replay-final">Revivir final</button>
+          <button id="close-letter">Cerrar</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

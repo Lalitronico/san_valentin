@@ -98,17 +98,22 @@ const setTile = (tiles: number[][], x: number, y: number, tileType: number, bloc
 };
 
 const buildCrossRoad = (tiles: number[][], blocked: Set<string>, centerX: number, centerY: number): void => {
+  // Horizontal road with sidewalks
   for (let x = 2; x <= 30; x += 1) {
     setTile(tiles, x, centerY, 8, blocked, false);
     setTile(tiles, x, centerY - 1, 1, blocked, false);
     setTile(tiles, x, centerY + 1, 1, blocked, false);
   }
-
+  // Vertical road with sidewalks (road-v = 10)
   for (let y = 2; y <= 15; y += 1) {
-    setTile(tiles, centerX, y, 8, blocked, false);
+    setTile(tiles, centerX, y, 10, blocked, false);
     setTile(tiles, centerX - 1, y, 1, blocked, false);
     setTile(tiles, centerX + 1, y, 1, blocked, false);
   }
+  // Fix intersection: center = intersection tile (11), restore horizontal road
+  setTile(tiles, centerX, centerY, 11, blocked, false);
+  setTile(tiles, centerX - 1, centerY, 8, blocked, false);
+  setTile(tiles, centerX + 1, centerY, 8, blocked, false);
 };
 
 export const createCityData = (): WorldData => {
@@ -293,7 +298,7 @@ export const createCampusData = (): WorldData => {
   setTile(tiles, 6, 5, 7, blocked, true);
 
   return {
-    label: 'Campus LSE-inspired',
+    label: 'Campus LSE',
     tiles,
     blocked,
     spawn: { x: 2, y: 9 },

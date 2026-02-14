@@ -31,6 +31,7 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
   private lastStep = 0;
   private waterTiles: Phaser.GameObjects.Image[] = [];
   private lampGlows: Phaser.GameObjects.Arc[] = [];
+  private rain: Array<{ rect: Phaser.GameObjects.Rectangle; vx: number; vy: number }> = [];
   private saveIndicator!: Phaser.GameObjects.Text;
 
   constructor(key: string) {
@@ -82,6 +83,22 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
     this.wasd = this.input.keyboard!.addKeys('W,A,S,D') as { [key: string]: Phaser.Input.Keyboard.Key };
     this.escKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
+    // London rain (all scenes)
+    for (let i = 0; i < 100; i += 1) {
+      const rect = this.add
+        .rectangle(
+          Phaser.Math.Between(0, GAME_W),
+          Phaser.Math.Between(0, GAME_H),
+          1,
+          Phaser.Math.Between(4, 8),
+          0xb0c8e0,
+          0.22
+        )
+        .setAngle(-16)
+        .setDepth(35);
+      this.rain.push({ rect, vx: 1.0 + (i % 3) * 0.15, vy: 2.2 + (i % 4) * 0.3 });
+    }
+
     this.input.keyboard!.on('keydown-ENTER', () => this.handleAccept());
     this.input.keyboard!.on('keydown-E', () => this.handleAccept());
     this.input.keyboard!.on('keydown-UP', () => {
@@ -130,6 +147,16 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
 
     this.checkExits();
     this.animateWater(time);
+
+    // Rain animation
+    for (const drop of this.rain) {
+      drop.rect.x -= drop.vx;
+      drop.rect.y += drop.vy;
+      if (drop.rect.y > GAME_H + 8 || drop.rect.x < -8) {
+        drop.rect.y = Phaser.Math.Between(-30, -8);
+        drop.rect.x = Phaser.Math.Between(0, GAME_W + 40);
+      }
+    }
   }
 
   private handleAccept(): void {
@@ -171,6 +198,10 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
                           ? 'tile-road'
                           : t === 9
                             ? 'tile-border'
+                            : t === 10
+                              ? 'tile-road-v'
+                              : t === 11
+                                ? 'tile-intersection'
                           : 'tile-grass';
         const img = this.add.image(x * TILE_SIZE + half, y * TILE_SIZE + half, key).setDepth(1);
         if (t === 2) this.waterTiles.push(img);

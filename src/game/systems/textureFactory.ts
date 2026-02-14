@@ -6,32 +6,27 @@ const px = (g: Phaser.GameObjects.Graphics, x: number, y: number, w: number, h: 
   g.fillRect(x, y, w, h);
 };
 
+// ── Night-palette tiles ─────────────────────────────────────────────
+
 const createGrassTile = (scene: Phaser.Scene): void => {
   if (scene.textures.exists('tile-grass')) return;
   const g = scene.add.graphics();
-  // Base with subtle gradient
-  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x3a6a55);
-  px(g, 0, 0, TILE_SIZE, TILE_SIZE / 2, 0x3f705b);
-  // Dithered noise for natural feel
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x0f1e18);
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE / 2, 0x122420);
   for (let i = 0; i < 40; i += 1) {
     const x = (i * 7 + 3) % TILE_SIZE;
     const y = (i * 11 + 5) % TILE_SIZE;
-    const colors = [0x4e846b, 0x355d4b, 0x447a60, 0x3d6d56];
+    const colors = [0x1a3028, 0x0a1610, 0x142a20, 0x0e1c16];
     px(g, x, y, 2, 2, colors[i % 4]);
   }
-  // Grass blades (vertical strokes)
   for (let i = 0; i < 8; i += 1) {
     const x = (i * 3 + 1) % TILE_SIZE;
     const y = (i * 5 + 2) % TILE_SIZE;
-    px(g, x, y, 1, 3, 0x5a9e78, 0.6);
+    px(g, x, y, 1, 3, 0x1a3828, 0.4);
   }
-  // Tiny flowers
-  px(g, 4, 6, 1, 1, 0xf0e0a0);
-  px(g, 5, 5, 1, 1, 0xe08090);
-  px(g, 16, 15, 1, 1, 0xf0e0a0);
-  px(g, 17, 14, 1, 1, 0xe08090);
-  px(g, 20, 8, 1, 2, 0x6da96f);
-  px(g, 10, 20, 1, 1, 0xf5d0a0, 0.7);
+  // Wet spots (rain on grass)
+  px(g, 6, 10, 2, 1, 0x18302a, 0.3);
+  px(g, 16, 6, 2, 1, 0x1e3830, 0.25);
   g.generateTexture('tile-grass', TILE_SIZE, TILE_SIZE);
   g.destroy();
 };
@@ -39,13 +34,17 @@ const createGrassTile = (scene: Phaser.Scene): void => {
 const createPathTile = (scene: Phaser.Scene): void => {
   if (scene.textures.exists('tile-path')) return;
   const g = scene.add.graphics();
-  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0xbdb6a5);
-  px(g, 0, 0, TILE_SIZE, 2, 0x938b7a);
-  px(g, 0, TILE_SIZE - 2, TILE_SIZE, 2, 0x938b7a);
-  px(g, 0, 0, 2, TILE_SIZE, 0x938b7a);
-  px(g, TILE_SIZE - 2, 0, 2, TILE_SIZE, 0x938b7a);
-  for (let x = 3; x < TILE_SIZE; x += 6) px(g, x, 0, 1, TILE_SIZE, 0x9f9787, 0.6);
-  for (let y = 4; y < TILE_SIZE; y += 8) px(g, 2, y, TILE_SIZE - 4, 1, 0xcfc7b8, 0.4);
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x343038);
+  px(g, 0, 0, TILE_SIZE, 2, 0x242028);
+  px(g, 0, TILE_SIZE - 2, TILE_SIZE, 2, 0x242028);
+  px(g, 0, 0, 2, TILE_SIZE, 0x242028);
+  px(g, TILE_SIZE - 2, 0, 2, TILE_SIZE, 0x242028);
+  for (let x = 3; x < TILE_SIZE; x += 6) px(g, x, 0, 1, TILE_SIZE, 0x2a2630, 0.6);
+  for (let y = 4; y < TILE_SIZE; y += 8) px(g, 2, y, TILE_SIZE - 4, 1, 0x3e3a40, 0.4);
+  // Wet pavement reflections
+  px(g, 5, 8, 3, 1, 0x4a5868, 0.3);
+  px(g, 14, 14, 4, 1, 0x506070, 0.25);
+  px(g, 1, 1, TILE_SIZE - 2, 1, 0x464250, 0.5);
   g.generateTexture('tile-path', TILE_SIZE, TILE_SIZE);
   g.destroy();
 };
@@ -53,35 +52,66 @@ const createPathTile = (scene: Phaser.Scene): void => {
 const createRoadTile = (scene: Phaser.Scene): void => {
   if (scene.textures.exists('tile-road')) return;
   const g = scene.add.graphics();
-  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x2a3448);
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x161c26);
   for (let i = 1; i < TILE_SIZE; i += 5) {
-    px(g, i, 2, 1, 1, 0x3a465f);
-    px(g, i + 1, 14, 1, 1, 0x1d2535);
+    px(g, i, 2, 1, 1, 0x1e2636);
+    px(g, i + 1, 14, 1, 1, 0x0e141c);
   }
-  px(g, 0, TILE_SIZE / 2 - 1, TILE_SIZE, 2, 0xe5d38e, 0.95);
-  for (let x = 2; x < TILE_SIZE; x += 7) px(g, x, TILE_SIZE / 2 - 1, 4, 2, 0x2a3448);
+  px(g, 0, TILE_SIZE / 2 - 1, TILE_SIZE, 2, 0xa69460, 0.85);
+  for (let x = 2; x < TILE_SIZE; x += 7) px(g, x, TILE_SIZE / 2 - 1, 4, 2, 0x161c26);
+  // Wet road gleam
+  px(g, 4, 4, 6, 1, 0x283040, 0.25);
+  px(g, 12, 16, 5, 1, 0x283040, 0.2);
   g.generateTexture('tile-road', TILE_SIZE, TILE_SIZE);
+  g.destroy();
+};
+
+const createRoadVertTile = (scene: Phaser.Scene): void => {
+  if (scene.textures.exists('tile-road-v')) return;
+  const g = scene.add.graphics();
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x161c26);
+  for (let i = 1; i < TILE_SIZE; i += 5) {
+    px(g, 2, i, 1, 1, 0x1e2636);
+    px(g, 14, i + 1, 1, 1, 0x0e141c);
+  }
+  // Vertical dashed center line
+  for (let y = 2; y < TILE_SIZE; y += 7) px(g, TILE_SIZE / 2 - 1, y, 2, 4, 0xa69460, 0.85);
+  px(g, 4, 6, 1, 5, 0x283040, 0.25);
+  px(g, 16, 12, 1, 4, 0x283040, 0.2);
+  g.generateTexture('tile-road-v', TILE_SIZE, TILE_SIZE);
+  g.destroy();
+};
+
+const createIntersectionTile = (scene: Phaser.Scene): void => {
+  if (scene.textures.exists('tile-intersection')) return;
+  const g = scene.add.graphics();
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x161c26);
+  for (let i = 2; i < TILE_SIZE; i += 5) {
+    px(g, i, 3, 1, 1, 0x1e2636);
+    px(g, 3, i, 1, 1, 0x1e2636);
+  }
+  // Subtle wet gleam at center
+  px(g, 8, 8, 8, 1, 0x283040, 0.2);
+  px(g, 8, 14, 8, 1, 0x283040, 0.15);
+  g.generateTexture('tile-intersection', TILE_SIZE, TILE_SIZE);
   g.destroy();
 };
 
 const createWaterTile = (scene: Phaser.Scene): void => {
   if (scene.textures.exists('tile-water')) return;
   const g = scene.add.graphics();
-  // Depth gradient
-  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x2e5081);
-  px(g, 0, 0, TILE_SIZE, 8, 0x3a6298, 0.5);
-  px(g, 0, TILE_SIZE - 6, TILE_SIZE, 6, 0x1e3d67, 0.6);
-  // Wave lines (staggered for realism)
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x14284a);
+  px(g, 0, 0, TILE_SIZE, 8, 0x1c3458, 0.5);
+  px(g, 0, TILE_SIZE - 6, TILE_SIZE, 6, 0x0e1c38, 0.6);
   for (let y = 3; y < TILE_SIZE; y += 4) {
     const offset = (y / 4) % 2 === 0 ? 0 : 3;
-    px(g, 1 + offset, y, TILE_SIZE - 4, 1, 0x6090c0, 0.4);
+    px(g, 1 + offset, y, TILE_SIZE - 4, 1, 0x2a4a70, 0.4);
   }
-  // Shimmer highlights
-  px(g, 3, 2, 3, 1, 0xc0e0ff, 0.5);
-  px(g, 14, 6, 2, 1, 0xc0e0ff, 0.4);
-  px(g, 8, 14, 4, 1, 0xc0e0ff, 0.35);
-  px(g, 1, 10, 2, 1, 0xb7d8ff, 0.45);
-  px(g, 18, 18, 3, 1, 0xb7d8ff, 0.35);
+  px(g, 3, 2, 3, 1, 0x5a80b0, 0.4);
+  px(g, 14, 6, 2, 1, 0x4a70a0, 0.35);
+  px(g, 8, 14, 4, 1, 0x5a80b0, 0.3);
+  px(g, 1, 10, 2, 1, 0x4a6898, 0.4);
+  px(g, 18, 18, 3, 1, 0x4a70a0, 0.3);
   g.generateTexture('tile-water', TILE_SIZE, TILE_SIZE);
   g.destroy();
 };
@@ -89,14 +119,10 @@ const createWaterTile = (scene: Phaser.Scene): void => {
 const createBorderTile = (scene: Phaser.Scene): void => {
   if (scene.textures.exists('tile-border')) return;
   const g = scene.add.graphics();
-  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x3f4c63);
-  for (let y = 0; y < TILE_SIZE; y += 4) {
-    px(g, 0, y, TILE_SIZE, 1, 0x2f394c, 0.8);
-  }
-  for (let x = 0; x < TILE_SIZE; x += 7) {
-    px(g, x, 1, 2, 1, 0x657895, 0.6);
-  }
-  px(g, 0, 0, TILE_SIZE, 2, 0x7083a1, 0.45);
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x1a2234);
+  for (let y = 0; y < TILE_SIZE; y += 4) px(g, 0, y, TILE_SIZE, 1, 0x101828, 0.8);
+  for (let x = 0; x < TILE_SIZE; x += 7) px(g, x, 1, 2, 1, 0x2a3854, 0.6);
+  px(g, 0, 0, TILE_SIZE, 2, 0x2e3a50, 0.45);
   g.generateTexture('tile-border', TILE_SIZE, TILE_SIZE);
   g.destroy();
 };
@@ -104,13 +130,15 @@ const createBorderTile = (scene: Phaser.Scene): void => {
 const createBrickTile = (scene: Phaser.Scene): void => {
   if (scene.textures.exists('tile-brick')) return;
   const g = scene.add.graphics();
-  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x6c3538);
-  for (let y = 0; y < TILE_SIZE; y += 6) px(g, 0, y, TILE_SIZE, 1, 0x4f2427);
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x2e1618);
+  for (let y = 0; y < TILE_SIZE; y += 6) px(g, 0, y, TILE_SIZE, 1, 0x1e0a0c);
   for (let y = 0; y < TILE_SIZE; y += 6) {
     const offset = (y / 6) % 2 === 0 ? 0 : 6;
-    for (let x = offset; x < TILE_SIZE; x += 12) px(g, x, y, 1, 6, 0x4f2427);
+    for (let x = offset; x < TILE_SIZE; x += 12) px(g, x, y, 1, 6, 0x1e0a0c);
   }
-  for (let y = 2; y < TILE_SIZE; y += 6) for (let x = 2; x < TILE_SIZE; x += 12) px(g, x, y, 4, 2, 0x894a4e, 0.45);
+  for (let y = 2; y < TILE_SIZE; y += 6) {
+    for (let x = 2; x < TILE_SIZE; x += 12) px(g, x, y, 4, 2, 0x3e2228, 0.45);
+  }
   g.generateTexture('tile-brick', TILE_SIZE, TILE_SIZE);
   g.destroy();
 };
@@ -118,11 +146,14 @@ const createBrickTile = (scene: Phaser.Scene): void => {
 const createWindowTile = (scene: Phaser.Scene): void => {
   if (scene.textures.exists('tile-window')) return;
   const g = scene.add.graphics();
-  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x6c3538);
-  px(g, 3, 3, TILE_SIZE - 6, TILE_SIZE - 6, 0xcfc7b9);
-  px(g, 5, 5, TILE_SIZE - 10, TILE_SIZE - 10, 0x93aec7);
-  px(g, TILE_SIZE / 2 - 1, 5, 2, TILE_SIZE - 10, 0x6f7d8b);
-  px(g, 5, TILE_SIZE / 2 - 1, TILE_SIZE - 10, 2, 0x6f7d8b);
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x2e1618);
+  px(g, 3, 3, TILE_SIZE - 6, TILE_SIZE - 6, 0x887048);
+  px(g, 5, 5, TILE_SIZE - 10, TILE_SIZE - 10, 0xd4a85a);
+  px(g, TILE_SIZE / 2 - 1, 5, 2, TILE_SIZE - 10, 0x8a6830);
+  px(g, 5, TILE_SIZE / 2 - 1, TILE_SIZE - 10, 2, 0x8a6830);
+  // Warm interior glow
+  px(g, 6, 6, 5, 5, 0xf0d888, 0.15);
+  px(g, 13, 6, 5, 5, 0xf0d888, 0.15);
   g.generateTexture('tile-window', TILE_SIZE, TILE_SIZE);
   g.destroy();
 };
@@ -130,10 +161,10 @@ const createWindowTile = (scene: Phaser.Scene): void => {
 const createDoorTile = (scene: Phaser.Scene): void => {
   if (scene.textures.exists('tile-door')) return;
   const g = scene.add.graphics();
-  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x6c3538);
-  px(g, 5, 3, TILE_SIZE - 10, TILE_SIZE - 4, 0x7a5035);
-  px(g, 7, 5, TILE_SIZE - 14, TILE_SIZE - 8, 0x8c6144);
-  px(g, TILE_SIZE - 8, TILE_SIZE / 2, 2, 2, 0xf0d48a);
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x2e1618);
+  px(g, 5, 3, TILE_SIZE - 10, TILE_SIZE - 4, 0x2a1e14);
+  px(g, 7, 5, TILE_SIZE - 14, TILE_SIZE - 8, 0x382818);
+  px(g, TILE_SIZE - 8, TILE_SIZE / 2, 2, 2, 0xc0a050);
   g.generateTexture('tile-door', TILE_SIZE, TILE_SIZE);
   g.destroy();
 };
@@ -141,13 +172,13 @@ const createDoorTile = (scene: Phaser.Scene): void => {
 const createFloorTile = (scene: Phaser.Scene): void => {
   if (scene.textures.exists('tile-floor')) return;
   const g = scene.add.graphics();
-  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0xc8c3b8);
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x3a3838);
   for (let i = 0; i <= TILE_SIZE; i += 6) {
-    px(g, i, 0, 1, TILE_SIZE, 0x9e988e);
-    px(g, 0, i, TILE_SIZE, 1, 0x9e988e);
+    px(g, i, 0, 1, TILE_SIZE, 0x282828);
+    px(g, 0, i, TILE_SIZE, 1, 0x282828);
   }
-  px(g, 1, 1, TILE_SIZE - 2, 1, 0xded8cc, 0.5);
-  px(g, 1, TILE_SIZE - 2, TILE_SIZE - 2, 1, 0x8a8479, 0.6);
+  px(g, 1, 1, TILE_SIZE - 2, 1, 0x484848, 0.5);
+  px(g, 1, TILE_SIZE - 2, TILE_SIZE - 2, 1, 0x202020, 0.6);
   g.generateTexture('tile-floor', TILE_SIZE, TILE_SIZE);
   g.destroy();
 };
@@ -155,7 +186,7 @@ const createFloorTile = (scene: Phaser.Scene): void => {
 const createBusTile = (scene: Phaser.Scene): void => {
   if (scene.textures.exists('tile-bus')) return;
   const g = scene.add.graphics();
-  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x1f2637);
+  px(g, 0, 0, TILE_SIZE, TILE_SIZE, 0x141a24);
   px(g, 1, 6, TILE_SIZE - 2, TILE_SIZE - 8, 0xb12d37);
   px(g, 3, 8, TILE_SIZE - 6, 3, 0xe8cd8f);
   px(g, 3, 12, TILE_SIZE - 6, 3, 0x9bb4d3);
@@ -166,31 +197,31 @@ const createBusTile = (scene: Phaser.Scene): void => {
   g.destroy();
 };
 
+// ── Characters ──────────────────────────────────────────────────────
+
 type CharacterStyle = {
   shirt: number;
   skin: number;
   hair: number;
   eye: number;
   pants: number;
+  skirt?: number;
 };
 
 const createCharacter = (scene: Phaser.Scene, key: string, style: CharacterStyle): void => {
   if (scene.textures.exists(key)) return;
   const g = scene.add.graphics();
   const outline = 0x0a0e16;
-  const shadow = 0x00000040;
   const hairHi = Phaser.Display.Color.IntegerToColor(style.hair).brighten(18).color;
   const skinHi = Phaser.Display.Color.IntegerToColor(style.skin).brighten(12).color;
   const skinSh = Phaser.Display.Color.IntegerToColor(style.skin).darken(16).color;
   const shirtHi = Phaser.Display.Color.IntegerToColor(style.shirt).brighten(14).color;
   const shirtSh = Phaser.Display.Color.IntegerToColor(style.shirt).darken(18).color;
 
-  // Hair (rounded top with highlight)
+  // Hair
   px(g, 8, 2, 8, 1, style.hair);
   px(g, 7, 3, 10, 4, style.hair);
   px(g, 8, 3, 6, 1, hairHi);
-
-  // Head outline
   px(g, 7, 2, 1, 1, outline);
   px(g, 16, 2, 1, 1, outline);
   px(g, 6, 3, 1, 5, outline);
@@ -200,40 +231,31 @@ const createCharacter = (scene: Phaser.Scene, key: string, style: CharacterStyle
   px(g, 7, 6, 10, 5, style.skin);
   px(g, 8, 6, 8, 1, skinHi);
   px(g, 7, 10, 10, 1, skinSh);
-
-  // Eyes (2px wide with pupil)
   px(g, 9, 7, 2, 2, 0xffffff);
   px(g, 10, 8, 1, 1, style.eye);
   px(g, 13, 7, 2, 2, 0xffffff);
   px(g, 14, 8, 1, 1, style.eye);
-
-  // Mouth
   px(g, 11, 9, 2, 1, skinSh);
 
-  // Body / shirt with shading
+  // Shirt
   px(g, 7, 11, 10, 7, style.shirt);
   px(g, 8, 11, 8, 1, shirtHi);
   px(g, 7, 17, 10, 1, shirtSh);
-  // Collar
   px(g, 10, 11, 4, 1, 0xffffff, 0.3);
-
-  // Body outline
   px(g, 6, 11, 1, 8, outline);
   px(g, 17, 11, 1, 8, outline);
 
-  // Arms with shading
+  // Arms
   px(g, 5, 12, 2, 6, style.skin);
   px(g, 5, 12, 2, 1, skinHi);
   px(g, 17, 12, 2, 6, style.skin);
   px(g, 17, 12, 2, 1, skinHi);
-  // Arm outline
   px(g, 4, 12, 1, 6, outline);
   px(g, 19, 12, 1, 6, outline);
 
   // Pants
   px(g, 7, 18, 4, 3, style.pants);
   px(g, 13, 18, 4, 3, style.pants);
-  // Gap between legs
   px(g, 11, 19, 2, 2, outline, 0.3);
 
   // Shoes
@@ -241,17 +263,101 @@ const createCharacter = (scene: Phaser.Scene, key: string, style: CharacterStyle
   px(g, 13, 21, 4, 2, 0x1a1e28);
   px(g, 8, 21, 2, 1, 0x2a3040);
 
-  // Drop shadow
-  px(g, 8, 23, 8, 1, shadow as number, 0.2);
-
+  px(g, 8, 23, 8, 1, 0x000000, 0.15);
   g.generateTexture(key, TILE_SIZE, TILE_SIZE);
   g.destroy();
 };
 
-const createNpcVariant = (scene: Phaser.Scene, key: string, style: CharacterStyle): void => {
+const createFemaleCharacter = (scene: Phaser.Scene, key: string, style: CharacterStyle): void => {
   if (scene.textures.exists(key)) return;
-  createCharacter(scene, key, style);
+  const g = scene.add.graphics();
+  const outline = 0x0a0e16;
+  const hairHi = Phaser.Display.Color.IntegerToColor(style.hair).brighten(20).color;
+  const skinHi = Phaser.Display.Color.IntegerToColor(style.skin).brighten(12).color;
+  const skinSh = Phaser.Display.Color.IntegerToColor(style.skin).darken(14).color;
+  const shirtHi = Phaser.Display.Color.IntegerToColor(style.shirt).brighten(14).color;
+  const shirtSh = Phaser.Display.Color.IntegerToColor(style.shirt).darken(16).color;
+  const skirtColor = style.skirt ?? style.pants;
+  const skirtHi = Phaser.Display.Color.IntegerToColor(skirtColor).brighten(12).color;
+  const skirtSh = Phaser.Display.Color.IntegerToColor(skirtColor).darken(14).color;
+
+  // Hair — longer, flowing past shoulders
+  px(g, 8, 1, 8, 1, style.hair);
+  px(g, 7, 2, 10, 5, style.hair);
+  px(g, 8, 2, 6, 2, hairHi);
+  // Side hair flowing down (shoulder length)
+  px(g, 6, 4, 2, 8, style.hair);
+  px(g, 16, 4, 2, 8, style.hair);
+  px(g, 6, 4, 1, 6, hairHi, 0.35);
+
+  // Head outline
+  px(g, 7, 1, 1, 1, outline);
+  px(g, 16, 1, 1, 1, outline);
+  px(g, 5, 4, 1, 8, outline);
+  px(g, 18, 4, 1, 8, outline);
+
+  // Face
+  px(g, 8, 6, 8, 5, style.skin);
+  px(g, 9, 6, 6, 1, skinHi);
+  px(g, 8, 10, 8, 1, skinSh);
+
+  // Eyelashes (key feminine detail)
+  px(g, 9, 6, 2, 1, outline);
+  px(g, 13, 6, 2, 1, outline);
+
+  // Eyes
+  px(g, 9, 7, 2, 2, 0xffffff);
+  px(g, 10, 8, 1, 1, style.eye);
+  px(g, 13, 7, 2, 2, 0xffffff);
+  px(g, 14, 8, 1, 1, style.eye);
+
+  // Blush (pink cheeks)
+  px(g, 8, 9, 2, 1, 0xf0a0a0, 0.3);
+  px(g, 14, 9, 2, 1, 0xf0a0a0, 0.3);
+
+  // Mouth
+  px(g, 11, 9, 2, 1, 0xd4847a);
+
+  // Shirt/top (fitted with neckline)
+  px(g, 8, 11, 8, 5, style.shirt);
+  px(g, 9, 11, 6, 1, shirtHi);
+  px(g, 8, 15, 8, 1, shirtSh);
+  px(g, 10, 11, 4, 1, style.skin, 0.5);
+
+  // Body outline
+  px(g, 7, 11, 1, 6, outline);
+  px(g, 16, 11, 1, 6, outline);
+
+  // Arms (slightly thinner)
+  px(g, 5, 12, 2, 5, style.skin);
+  px(g, 5, 12, 2, 1, skinHi);
+  px(g, 17, 12, 2, 5, style.skin);
+  px(g, 17, 12, 2, 1, skinHi);
+  px(g, 4, 12, 1, 5, outline);
+  px(g, 19, 12, 1, 5, outline);
+
+  // Skirt (A-line, widens at bottom)
+  px(g, 8, 16, 8, 1, skirtColor);
+  px(g, 7, 17, 10, 2, skirtColor);
+  px(g, 6, 19, 12, 1, skirtColor);
+  px(g, 8, 16, 6, 1, skirtHi, 0.4);
+  px(g, 6, 19, 12, 1, skirtSh);
+
+  // Legs (thin, below skirt)
+  px(g, 9, 20, 2, 1, style.skin);
+  px(g, 13, 20, 2, 1, style.skin);
+
+  // Shoes
+  px(g, 8, 21, 3, 2, 0x1a1e28);
+  px(g, 13, 21, 3, 2, 0x1a1e28);
+  px(g, 9, 21, 1, 1, 0x2a3040);
+
+  px(g, 8, 23, 8, 1, 0x000000, 0.15);
+  g.generateTexture(key, TILE_SIZE, TILE_SIZE);
+  g.destroy();
 };
+
+// ── Props ───────────────────────────────────────────────────────────
 
 const createPhoneBooth = (scene: Phaser.Scene): void => {
   if (scene.textures.exists('prop-phonebooth')) return;
@@ -317,7 +423,6 @@ const createGuard = (scene: Phaser.Scene): void => {
 const createBusProp = (scene: Phaser.Scene): void => {
   if (scene.textures.exists('prop-bus')) return;
   const g = scene.add.graphics();
-  // Better London bus silhouette.
   px(g, 1, 6, TILE_SIZE - 2, TILE_SIZE - 8, 0xb6313b);
   px(g, 2, 5, TILE_SIZE - 4, 2, 0xd46f60);
   px(g, 4, 8, TILE_SIZE - 8, 3, 0xe8d09a);
@@ -329,13 +434,14 @@ const createBusProp = (scene: Phaser.Scene): void => {
   g.destroy();
 };
 
+// ── Symbols ─────────────────────────────────────────────────────────
+
 const createSymbol = (scene: Phaser.Scene, key: string, fill: number): void => {
   if (scene.textures.exists(key)) return;
   const g = scene.add.graphics();
   const dark = Phaser.Display.Color.IntegerToColor(fill).darken(30).color;
   const light = Phaser.Display.Color.IntegerToColor(fill).brighten(20).color;
 
-  // Rounded container with glow
   px(g, 4, 2, TILE_SIZE - 8, 1, fill, 0.3);
   px(g, 3, 3, TILE_SIZE - 6, TILE_SIZE - 6, dark);
   px(g, 4, 4, TILE_SIZE - 8, TILE_SIZE - 8, fill);
@@ -344,7 +450,6 @@ const createSymbol = (scene: Phaser.Scene, key: string, fill: number): void => {
   px(g, TILE_SIZE - 3, 4, 1, TILE_SIZE - 8, dark, 0.5);
 
   if (key === 'memory') {
-    // Heart shape
     px(g, 8, 8, 3, 2, 0xf7f0df);
     px(g, 13, 8, 3, 2, 0xf7f0df);
     px(g, 7, 10, 10, 3, 0xf7f0df);
@@ -352,20 +457,16 @@ const createSymbol = (scene: Phaser.Scene, key: string, fill: number): void => {
     px(g, 9, 15, 6, 1, 0xf7f0df);
     px(g, 10, 16, 4, 1, 0xf7f0df);
     px(g, 11, 17, 2, 1, 0xf7f0df);
-    // Heart blush
     px(g, 9, 10, 2, 2, 0xffb0b0, 0.5);
   }
   if (key === 'encounter') {
-    // Swirl/cloud shape
     px(g, 9, 6, 6, 3, 0x8ba2cf);
     px(g, 7, 9, 10, 5, 0x8ba2cf);
     px(g, 8, 8, 8, 1, 0xa8bde0);
-    // Question detail
     px(g, 11, 15, 2, 1, 0x2a3354);
     px(g, 11, 17, 2, 2, 0x2a3354);
   }
   if (key === 'sign') {
-    // Signboard
     px(g, 6, 6, TILE_SIZE - 12, 8, 0x214b66);
     px(g, 7, 7, TILE_SIZE - 14, 1, 0x3a7da6);
     px(g, TILE_SIZE / 2 - 1, 14, 2, 6, 0x132636);
@@ -389,10 +490,14 @@ const createSymbol = (scene: Phaser.Scene, key: string, fill: number): void => {
   rt.destroy();
 };
 
+// ── Export ───────────────────────────────────────────────────────────
+
 export const ensureCoreTextures = (scene: Phaser.Scene): void => {
   createGrassTile(scene);
   createPathTile(scene);
   createRoadTile(scene);
+  createRoadVertTile(scene);
+  createIntersectionTile(scene);
   createWaterTile(scene);
   createBorderTile(scene);
   createBrickTile(scene);
@@ -401,6 +506,7 @@ export const ensureCoreTextures = (scene: Phaser.Scene): void => {
   createFloorTile(scene);
   createBusTile(scene);
 
+  // Male characters
   createCharacter(scene, 'player-my', {
     shirt: 0x3d7fc2,
     skin: 0xa56943,
@@ -408,43 +514,52 @@ export const ensureCoreTextures = (scene: Phaser.Scene): void => {
     eye: 0x0b0b0b,
     pants: 0x1f2f54
   });
-  createCharacter(scene, 'player-her', {
+
+  // Female characters (longer hair, eyelashes, blush, skirt)
+  createFemaleCharacter(scene, 'player-her', {
     shirt: 0xd56f99,
     skin: 0xeac1a2,
     hair: 0x5a2f28,
     eye: 0x2a2a2a,
-    pants: 0x2e3b60
+    pants: 0x2e3b60,
+    skirt: 0x3a2858
   });
 
-  createNpcVariant(scene, 'npc-camille', {
+  createFemaleCharacter(scene, 'npc-camille', {
     shirt: 0x8e79d7,
     skin: 0xe1b391,
     hair: 0x4a2d22,
     eye: 0x1f1f1f,
-    pants: 0x32496f
+    pants: 0x32496f,
+    skirt: 0x4a3468
   });
-  createNpcVariant(scene, 'npc-musico', {
+
+  createCharacter(scene, 'npc-musico', {
     shirt: 0x6aa8d4,
     skin: 0xdcb08e,
     hair: 0x2a2018,
     eye: 0x202020,
     pants: 0x2d3f5f
   });
-  createNpcVariant(scene, 'npc-mensajera', {
+
+  createFemaleCharacter(scene, 'npc-mensajera', {
     shirt: 0xe38e73,
     skin: 0xe5b999,
     hair: 0x4d2f24,
     eye: 0x1f1f1f,
-    pants: 0x3f4d69
+    pants: 0x3f4d69,
+    skirt: 0x4a3050
   });
-  createNpcVariant(scene, 'npc-conductor', {
+
+  createCharacter(scene, 'npc-conductor', {
     shirt: 0x3a6db0,
     skin: 0xc89570,
     hair: 0x23160f,
     eye: 0x121212,
     pants: 0x1f2e45
   });
-  createNpcVariant(scene, 'npc-default', {
+
+  createCharacter(scene, 'npc-default', {
     shirt: 0x6b8fb3,
     skin: 0xe9c4a1,
     hair: 0x4b2f22,

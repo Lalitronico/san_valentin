@@ -12,7 +12,7 @@ export const MEMORY_LOVE_BONUS = 8;
 export const INITIAL_LOVE = 10;
 
 // Timing (ms)
-export const MUSIC_TICK_MS = 210;
+export const MUSIC_TICK_MS = 280;
 export const STEP_SOUND_MS = 210;
 export const DIALOG_CHAR_MS = 18;
 

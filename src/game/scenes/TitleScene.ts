@@ -131,9 +131,18 @@ export class TitleScene extends Phaser.Scene {
       .setDepth(30);
 
     this.add
-      .text(GAME_W / 2, GAME_H - 148, `Para ${LOVE_CONFIG.girlfriendName}`, {
+      .text(GAME_W / 2, GAME_H - 156, 'Para: Mi Joanita', {
         fontFamily: 'Press Start 2P',
-        fontSize: '10px',
+        fontSize: '8px',
+        color: '#ffd6e8'
+      })
+      .setOrigin(0.5)
+      .setDepth(30);
+
+    this.add
+      .text(GAME_W / 2, GAME_H - 140, 'De: Tu Lalito', {
+        fontFamily: 'Press Start 2P',
+        fontSize: '8px',
         color: '#fff4c7'
       })
       .setOrigin(0.5)

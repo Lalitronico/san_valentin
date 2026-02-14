@@ -32,6 +32,9 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
   private waterTiles: Phaser.GameObjects.Image[] = [];
   private lampGlows: Phaser.GameObjects.Arc[] = [];
   private rain: Array<{ rect: Phaser.GameObjects.Rectangle; vx: number; vy: number }> = [];
+  private skyStars: Phaser.GameObjects.Rectangle[] = [];
+  private skyClouds: Phaser.GameObjects.Rectangle[] = [];
+  private moonGlow!: Phaser.GameObjects.Arc;
   private saveIndicator!: Phaser.GameObjects.Text;
 
   constructor(key: string) {
@@ -99,6 +102,43 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
       this.rain.push({ rect, vx: 1.0 + (i % 3) * 0.15, vy: 2.2 + (i % 4) * 0.3 });
     }
 
+    // Night sky (visible in freed top 48px — rows 0-1 not rendered as tiles)
+    this.add.rectangle(GAME_W / 2, 24, GAME_W, 48, 0x0a1528).setDepth(0);
+    this.add.rectangle(GAME_W / 2, 42, GAME_W, 14, 0x111e38, 0.4).setDepth(0);
+
+    // City skyline silhouettes in sky zone
+    for (let sx = 0; sx < GAME_W; sx += 24) {
+      const h = Phaser.Math.Between(14, 40);
+      this.add.rectangle(sx + 12, 48 - h / 2, 20, h, 0x0c1528, 0.75).setDepth(1);
+      if (Math.random() > 0.6) {
+        this.add.rectangle(sx + 6 + Phaser.Math.Between(0, 8), 48 - h + Phaser.Math.Between(4, h - 3), 2, 2, 0xffe8a2, 0.65).setDepth(1);
+      }
+    }
+
+    // Stars scattered in sky zone
+    for (let i = 0; i < 35; i += 1) {
+      const size = i % 8 === 0 ? 2 : 1;
+      const color = i % 5 === 0 ? 0xf5d899 : i % 9 === 0 ? 0xffb0c0 : 0xdde9ff;
+      const star = this.add
+        .rectangle(Phaser.Math.Between(6, GAME_W - 6), Phaser.Math.Between(2, 42), size, size, color)
+        .setAlpha(Phaser.Math.FloatBetween(0.3, 0.95))
+        .setDepth(2);
+      this.skyStars.push(star);
+    }
+
+    // Crescent moon (in gap between HUD panels: x ≈ 305-378)
+    this.moonGlow = this.add.circle(340, 24, 16, 0xf5e8c0, 0.08).setDepth(2);
+    this.add.circle(340, 24, 9, 0xf0e6c8, 0.85).setDepth(2);
+    this.add.circle(344, 21, 8, 0x0a1528).setDepth(2);
+
+    // Thin cloud wisps
+    for (let i = 0; i < 4; i += 1) {
+      const cloud = this.add
+        .rectangle(Phaser.Math.Between(-20, GAME_W), Phaser.Math.Between(4, 36), Phaser.Math.Between(24, 50), 2, 0x1e2e50, 0.18)
+        .setDepth(2);
+      this.skyClouds.push(cloud);
+    }
+
     this.input.keyboard!.on('keydown-ENTER', () => this.handleAccept());
     this.input.keyboard!.on('keydown-E', () => this.handleAccept());
     this.input.keyboard!.on('keydown-UP', () => {
@@ -157,6 +197,22 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
         drop.rect.x = Phaser.Math.Between(0, GAME_W + 40);
       }
     }
+
+    // Sky star twinkle
+    for (let i = 0; i < this.skyStars.length; i += 1) {
+      this.skyStars[i].alpha = 0.2 + Math.sin((time + i * 37) * (0.006 + (i % 5) * 0.002)) * 0.65;
+    }
+
+    // Cloud drift
+    for (const cloud of this.skyClouds) {
+      cloud.x += 0.03;
+      if (cloud.x > GAME_W + 60) cloud.x = -70;
+    }
+
+    // Moon glow pulse
+    if (this.moonGlow) {
+      this.moonGlow.setAlpha(0.05 + Math.sin(time * 0.0015) * 0.04);
+    }
   }
 
   private handleAccept(): void {
@@ -179,6 +235,18 @@ export abstract class BaseExplorationScene extends Phaser.Scene {
     for (let y = 0; y < this.world.tiles.length; y += 1) {
       for (let x = 0; x < this.world.tiles[y].length; x += 1) {
         const t = this.world.tiles[y][x];
+
+        // Sky zone: top 2 rows — invisible blockers, no visible tiles
+        if (y < 2) {
+          const obstacle = blockedGroup
+            .create(x * TILE_SIZE + half, y * TILE_SIZE + half, 'tile-border')
+            .setOrigin(0.5, 0.5)
+            .setVisible(false)
+            .setDepth(2);
+          obstacle.refreshBody();
+          continue;
+        }
+
         const key =
           t === 1
             ? 'tile-path'

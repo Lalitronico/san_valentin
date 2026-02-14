@@ -22,6 +22,15 @@ export class BridgeFinalScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Reset arrays for clean restart (Phaser reuses the same instance)
+    this.readyForLetter = false;
+    this.stars = [];
+    this.river = [];
+    this.rain = [];
+    this.lampGlows = [];
+    this.skylineFar = [];
+    this.skylineNear = [];
+
     ensureCoreTextures(this);
     startMusic(this);
     this.cameras.main.setBackgroundColor(0x0c1630);
@@ -238,7 +247,7 @@ export class BridgeFinalScene extends Phaser.Scene {
 
     replayBtn.onclick = () => {
       overlay.classList.add('hidden');
-      this.scene.restart();
+      this.time.delayedCall(100, () => this.scene.restart());
     };
 
     closeBtn.onclick = () => {
